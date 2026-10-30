@@ -1,0 +1,17 @@
+{
+  "name": "medical-store-management",
+  "version": "1.0.0",
+  "description": "A browser-based medical store management app for inventory, billing, customers, and sales.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "medical-store",
+    "pharmacy",
+    "inventory",
+    "billing"
+  ],
+  "author": "",
+  "license": "MIT"
+}

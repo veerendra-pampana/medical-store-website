@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediStore Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <h1>Sri Krishna Medicals</h1>
+          <p>Medical Store Manager</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="inventory">Inventory</button>
+        <button class="nav-link" data-view="billing">Billing</button>
+        <button class="nav-link" data-view="customers">Customers</button>
+        <button class="nav-link" data-view="sales">Sales</button>
+        <button class="nav-link" data-view="bot">AI Bot</button>
+      </nav>
+    </aside>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Store Operations</p>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
+        <div class="topbar-actions">
+          <span class="muted" id="loggedInUser"></span>
+          <button class="ghost-button" id="seedDataButton">Load Sample Data</button>
+          <button class="danger-button" id="resetDataButton">Reset</button>
+          <button class="ghost-button" id="logoutButton">Logout</button>
+        </div>
+      </header>
+
+      <section class="view active" id="dashboardView">
+        <section class="notification-panel" id="stockNotificationPanel">
+          <div>
+            <p class="eyebrow">Owner Notification</p>
+            <h3 id="stockNotificationTitle">Stock is healthy</h3>
+            <p id="stockNotificationText">No medicine is close to empty right now.</p>
+          </div>
+          <button class="primary-button" id="enableNotifications">Enable Desktop Alerts</button>
+        </section>
+
+        <div class="metrics-grid">
+          <article class="metric">
+            <span>Total Medicines</span>
+            <strong id="totalMedicines">0</strong>
+          </article>
+          <article class="metric">
+            <span>Low Stock</span>
+            <strong id="lowStockCount">0</strong>
+          </article>
+          <article class="metric">
+            <span>Out of Stock</span>
+            <strong id="emptyStockCount">0</strong>
+          </article>
+          <article class="metric">
+            <span>Expiring Soon</span>
+            <strong id="expiringSoonCount">0</strong>
+          </article>
+          <article class="metric">
+            <span>Revenue</span>
+            <strong id="totalRevenue">Rs 0</strong>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Urgent Stock Alerts</h3>
+              <span class="muted">Quantity below reorder level</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine</th>
+                    <th>Batch</th>
+                    <th>Stock</th>
+                    <th>Reorder</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Expiry Watch</h3>
+              <span class="muted">Within next 60 days</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine</th>
+                    <th>Batch</th>
+                    <th>Expiry</th>
+                    <th>Stock</th>
+                  </tr>
+                </thead>
+                <tbody id="expiryTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="inventoryView">
+        <div class="split-layout">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Add / Update Medicine</h3>
+              <span class="muted">Track stock, batch, supplier, and expiry</span>
+            </div>
+            <form class="form-grid" id="medicineForm">
+              <input type="hidden" id="medicineId" />
+              <label>
+                Medicine Name
+                <input required id="medicineName" placeholder="Paracetamol 500mg" />
+              </label>
+              <label>
+                Category
+                <select id="medicineCategory" required>
+                  <option value="">Select category</option>
+                  <option>Tablet</option>
+                  <option>Capsule</option>
+                  <option>Syrup</option>
+                  <option>Injection</option>
+                  <option>Ointment</option>
+                  <option>Drops</option>
+                  <option>Device</option>
+                </select>
+              </label>
+              <label>
+                Batch No.
+                <input required id="medicineBatch" placeholder="B1024" />
+              </label>
+              <label>
+                Supplier
+                <input required id="medicineSupplier" placeholder="HealthCare Distributors" />
+              </label>
+              <label>
+                Purchase Price
+                <input required min="0" step="0.01" type="number" id="purchasePrice" />
+              </label>
+              <label>
+                Selling Price
+                <input required min="0" step="0.01" type="number" id="sellingPrice" />
+              </label>
+              <label>
+                Quantity
+                <input required min="0" step="1" type="number" id="quantity" />
+              </label>
+              <label>
+                Reorder Level
+                <input required min="0" step="1" type="number" id="reorderLevel" />
+              </label>
+              <label>
+                Expiry Date
+                <input required type="date" id="expiryDate" />
+              </label>
+              <label>
+                GST %
+                <input required min="0" max="28" step="0.01" type="number" id="gstRate" value="12" />
+              </label>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Save Medicine</button>
+                <button class="ghost-button" type="button" id="clearMedicineForm">Clear</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Inventory</h3>
+              <input class="search-input" id="inventorySearch" placeholder="Search medicines..." />
+            </div>
+            <div class="table-wrap inventory-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Batch</th>
+                    <th>Category</th>
+                    <th>Qty</th>
+                    <th>MRP</th>
+                    <th>Expiry</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="billingView">
+        <div class="billing-layout">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Create Bill</h3>
+              <span class="muted">Add medicines and generate invoice</span>
+            </div>
+            <div class="customer-row">
+              <label>
+                Customer
+                <select id="billCustomer"></select>
+              </label>
+              <label>
+                Discount %
+                <input id="billDiscount" type="number" min="0" max="100" step="0.01" value="0" />
+              </label>
+            </div>
+            <div class="medicine-picker">
+              <select id="billMedicine"></select>
+              <input id="billQuantity" type="number" min="1" step="1" value="1" />
+              <button class="primary-button" id="addToBill">Add</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Medicine</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>GST</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="billItemsTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="invoice-panel">
+            <div class="invoice-heading">
+              <h3>Invoice Summary</h3>
+              <span id="invoiceNumber">Draft</span>
+            </div>
+            <dl class="invoice-lines">
+              <div>
+                <dt>Subtotal</dt>
+                <dd id="billSubtotal">Rs 0</dd>
+              </div>
+              <div>
+                <dt>GST</dt>
+                <dd id="billTax">Rs 0</dd>
+              </div>
+              <div>
+                <dt>Discount</dt>
+                <dd id="billDiscountAmount">Rs 0</dd>
+              </div>
+              <div class="grand-total">
+                <dt>Total</dt>
+                <dd id="billTotal">Rs 0</dd>
+              </div>
+            </dl>
+            <button class="primary-button full-width" id="completeSale">Complete Sale</button>
+            <button class="ghost-button full-width" id="printInvoice">Print Invoice</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="customersView">
+        <div class="split-layout customers-layout">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Add Customer</h3>
+              <span class="muted">Keep purchase records searchable</span>
+            </div>
+            <form class="form-grid compact" id="customerForm">
+              <input type="hidden" id="customerId" />
+              <label>
+                Full Name
+                <input required id="customerName" placeholder="Anil Kumar" />
+              </label>
+              <label>
+                Phone
+                <input required id="customerPhone" placeholder="9876543210" />
+              </label>
+              <label class="wide">
+                Reason for Treatment / Medicine
+                <textarea id="customerReason" rows="3" placeholder="e.g. Fever and cold, Diabetes medication"></textarea>
+              </label>
+              <label>
+                Total Cost
+                <input required min="0" step="0.01" type="number" id="customerCost" placeholder="0.00" />
+              </label>
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Save Customer</button>
+                <button class="ghost-button" type="button" id="clearCustomerForm">Clear</button>
+              </div>
+            </form>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>Customers</h3>
+              <input class="search-input" id="customerSearch" placeholder="Search customers..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Reason</th>
+                    <th>Total Cost</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="salesView">
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>Sales History</h3>
+            <input class="search-input" id="salesSearch" placeholder="Search invoice or customer..." />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="salesTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="botView">
+        <div class="bot-layout">
+          <section class="panel bot-panel">
+            <div class="panel-heading">
+              <h3>Medicine AI Bot</h3>
+              <span class="muted">Ask about stock, expiry, or common medicine information</span>
+            </div>
+            <div class="bot-messages" id="botMessages">
+              <div class="bot-message bot">
+                Hello. Ask me things like "stock paracetamol", "which medicine is going empty", or "what is amoxicillin used for".
+              </div>
+            </div>
+            <form class="bot-form" id="botForm">
+              <input id="botInput" placeholder="Ask about a medicine..." autocomplete="off" />
+              <button class="primary-button" type="submit">Ask</button>
+            </form>
+          </section>
+
+          <aside class="panel">
+            <div class="panel-heading">
+              <h3>Quick Questions</h3>
+            </div>
+            <div class="quick-prompts">
+              <button class="ghost-button" data-bot-prompt="Which medicines are going empty?">Going empty</button>
+              <button class="ghost-button" data-bot-prompt="Which medicines are out of stock?">Out of stock</button>
+              <button class="ghost-button" data-bot-prompt="Which medicines are expiring soon?">Expiring soon</button>
+              <button class="ghost-button" data-bot-prompt="What is paracetamol used for?">Paracetamol info</button>
+              <button class="ghost-button" data-bot-prompt="What is amoxicillin used for?">Amoxicillin info</button>
+            </div>
+            <p class="safety-note">
+              Medicine information is general and not a prescription. Confirm dosage, interactions, and suitability with a qualified doctor or pharmacist.
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="invoiceDialog">
+      <div class="dialog-heading">
+        <h3>Invoice</h3>
+        <button class="icon-button" id="closeInvoice" aria-label="Close invoice">x</button>
+      </div>
+      <div id="invoiceContent"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
